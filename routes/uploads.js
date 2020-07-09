@@ -36,21 +36,54 @@ router.post('/', multerConfig, async (req, res) => {
 
 // }
 
-
+let imgModel = require('../models/image');
 router.post('/multi', multerConfig, async (req, res) => {
     let arr = [];
     for await (let mFile of req.files) {
         let newPath = mFile.destination + mFile.filename;
-        await cloudinary.uploader.upload(newPath).then(async (img) => {
+      let img=  await cloudinary.uploader.upload(newPath)
+    //   .then(async (img) => {
             let imageData = {};
-            imageData.uploadId = img.public_id;
-            imageData.imageName = img.original_filename;
-            imageData.imageUrl = img.url;
-            imageData.createdTime = img.created_at;
-            arr.push(imageData)
-        });
+            imageData.publicId = img.public_id;
+            imageData.imgName = img.original_filename;
+            imageData.imgUrl = img.url;
+            if (!arr.includes(imageData)) {
+                arr.push(imageData)
+            }
+        // });
     }
-    return res.json({ arra: arr })
-})
 
+    await imgModel.insertMany(arr, async (err, respo) => {
+        if (err) {
+            return res.json({ status: false, msf: err, data: [] });
+        }
+        else {
+            return res.json({ status: true, msg: 'Added', data: arr });
+        }
+    });
+});
+
+router.get('/', async (req, res) => {
+    await imgModel.find({}, async (err, respo) => {
+        if (err) {
+            return res.json({ status: false, msf: err, data: [] });
+        }
+        else if (respo !== null) {
+            return res.json({ status: true, msg: '', data: respo });
+        }
+    });
+
+})
+router.delete('/', async (req, res) => {
+
+    await imgModel.deleteMany({}, async (err, respo) => {
+        if (err) {
+            return res.json({ status: false, msf: err, data: [] });
+        }
+        else if (respo !== null) {
+            return res.json({ status: true, msg: '', data: respo });
+        }
+    });
+
+})
 module.exports = router;

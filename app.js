@@ -40,6 +40,18 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
+let opts = {
+  useNewUrlParser: true,
+  unifiedTopology: true
+};
+
+let db = require('./config/db');
+let mongoose = require('mongoose').connect(db.dbUrl, opts, async (err) => {
+  if (!err) {
+    console.log(`db running on  ${db.dbUrl}`);
+  }
+});
+
 let port = process.env.PORT || 5300;
 app.listen(port, async (err) => {
   if(!err)
