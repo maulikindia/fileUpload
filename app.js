@@ -42,7 +42,7 @@ app.use(function (err, req, res, next) {
 
 let opts = {
   useNewUrlParser: true,
-  unifiedTopology: true
+  useUnifiedTopology: true
 };
 
 let db = require('./config/db');
